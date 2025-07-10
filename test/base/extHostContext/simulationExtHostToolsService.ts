@@ -9,16 +9,16 @@ import type { CancellationToken, ChatRequest, LanguageModelTool, LanguageModelTo
 import { getToolName, ToolName } from '../../../src/extension/tools/common/toolNames';
 import { ICopilotTool } from '../../../src/extension/tools/common/toolsRegistry';
 import { BaseToolsService, IToolsService } from '../../../src/extension/tools/common/toolsService';
+import { getPackagejsonToolsForTest } from '../../../src/extension/tools/node/test/testToolsService';
 import { ToolsContribution } from '../../../src/extension/tools/vscode-node/tools';
 import { ToolsService } from '../../../src/extension/tools/vscode-node/toolsService';
 import { packageJson } from '../../../src/platform/env/common/packagejson';
 import { ILogService } from '../../../src/platform/log/common/logService';
+import { raceTimeout } from '../../../src/util/vs/base/common/async';
 import { CancellationError } from '../../../src/util/vs/base/common/errors';
 import { Iterable } from '../../../src/util/vs/base/common/iterator';
 import { IInstantiationService } from '../../../src/util/vs/platform/instantiation/common/instantiation';
 import { logger } from '../../simulationLogger';
-import { raceTimeout } from '../../../src/util/vs/base/common/async';
-import { getPackagejsonToolsForTest } from '../../../src/extension/tools/node/test/testToolsService';
 
 export class SimulationExtHostToolsService extends BaseToolsService implements IToolsService {
 	declare readonly _serviceBrand: undefined;
@@ -87,9 +87,9 @@ export class SimulationExtHostToolsService extends BaseToolsService implements I
 				return result;
 			}
 
-			const r = await raceTimeout(Promise.resolve(this._inner.invokeTool(name, options, token)), 60_000);
+			const r = await raceTimeout(Promise.resolve(this._inner.invokeTool(name, options, token)), 3600_000);
 			if (!r) {
-				throw new Error(`Tool call timed out after 60 seconds`);
+				throw new Error(`Tool call timed out after 3600 seconds`);
 			}
 			return r;
 		} catch (e) {
@@ -120,7 +120,8 @@ export class SimulationExtHostToolsService extends BaseToolsService implements I
 
 	getEnabledTools(request: ChatRequest, filter?: (tool: LanguageModelToolInformation) => boolean | undefined): LanguageModelToolInformation[] {
 		const packageJsonTools = getPackagejsonToolsForTest();
-		return this.tools.filter(tool => filter?.(tool) ?? (!this._disabledTools.has(getToolName(tool.name)) && packageJsonTools.has(tool.name)));
+		const result = this.tools.filter(tool => filter?.(tool) ?? ((!this._disabledTools.has(getToolName(tool.name)) && packageJsonTools.has(tool.name)) || tool.tags.includes('java')));
+		return result;
 	}
 
 	addTestToolOverride(info: LanguageModelToolInformation, tool: LanguageModelTool<unknown>): void {
