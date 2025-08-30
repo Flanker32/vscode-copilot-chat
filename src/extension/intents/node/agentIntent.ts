@@ -179,7 +179,7 @@ export class AgentIntent extends EditCodeIntent {
 
 	protected override getIntentHandlerOptions(request: vscode.ChatRequest): IDefaultIntentRequestHandlerOptions | undefined {
 		return {
-			maxToolCallIterations: 200,
+			maxToolCallIterations: 300,
 			temperature: this.configurationService.getConfig(ConfigKey.Internal.AgentTemperature) ?? 0,
 			overrideRequestLocation: ChatLocation.Agent,
 			hideRateLimitTimeEstimate: true
