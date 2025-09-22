@@ -57,25 +57,26 @@ async function fetchSecrets(): Promise<{ [key: string]: string | undefined }> {
 	secrets["HMAC_SECRET"] = await fetchSecret(developmentSecretClient, "hmac-secret");
 	secrets["XTAB_KEY"] = await fetchSecret(developmentSecretClient, "xtab-mass-swc");
 
-	if (!process.stdin.isTTY) { // only in automation
-		const automationVaultClient = await setupSecretClient("https://copilot-automation.vault.azure.net/");
-		secrets["GITHUB_OAUTH_TOKEN"] = await fetchSecret(automationVaultClient, "capi-oauth");
-		secrets["GHCR_PAT"] = await fetchSecret(automationVaultClient, "ghcr-pat");
-		secrets["BLACKBIRD_EMBEDDINGS_KEY"] = await fetchSecret(automationVaultClient, "vsc-aoai-key");
-		secrets["BLACKBIRD_REDIS_CACHE_KEY"] = await fetchSecret(automationVaultClient, "blackbird-redis-cache-key");
+	// if (!process.stdin.isTTY) { // only in automation
+	const automationVaultClient = await setupSecretClient("https://copilot-automation.vault.azure.net/");
+	secrets["GITHUB_OAUTH_TOKEN"] = await fetchSecret(automationVaultClient, "capi-oauth");
+	secrets["GHCR_PAT"] = await fetchSecret(automationVaultClient, "ghcr-pat");
+	secrets["BLACKBIRD_EMBEDDINGS_KEY"] = await fetchSecret(automationVaultClient, "vsc-aoai-key");
+	secrets["BLACKBIRD_REDIS_CACHE_KEY"] = await fetchSecret(automationVaultClient, "blackbird-redis-cache-key");
 
-		try {
-			secrets["ANTHROPIC_API_KEY"] = await fetchSecret(automationVaultClient, "anthropic-key");
-			secrets["DEEPSEEK_API_KEY"] = await fetchSecret(automationVaultClient, "deepseek-key");
-		} catch (error) {
-			console.log(red(`Failed to fetch optional evaluation tokens. Skipping...`));
-		}
+	try {
+		secrets["ANTHROPIC_API_KEY"] = await fetchSecret(automationVaultClient, "anthropic-key");
+		secrets["DEEPSEEK_API_KEY"] = await fetchSecret(automationVaultClient, "deepseek-key");
+	} catch (error) {
+		console.log(red(`Failed to fetch optional evaluation tokens. Skipping...`));
 	}
+	// }
 
 	return secrets;
 }
 
 async function main() {
+	console.log(`IsTTY: ${process.stdin.isTTY}`)
 	const env = Object.entries(await fetchSecrets());
 
 	const raw = fs.existsSync('.env') ? fs.readFileSync('.env', 'utf8') : '';

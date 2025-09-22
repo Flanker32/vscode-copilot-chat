@@ -1,0 +1,10 @@
+{
+	"mcpServers": {
+		"java-upgrade": {
+			"type": "local",
+			"command": "node",
+			"tools": ["*"],
+			"args": ["/agent/mcp.js"]
+		}
+	}
+}
