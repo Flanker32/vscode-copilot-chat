@@ -522,6 +522,7 @@ export class ChatMLFetcherImpl extends AbstractChatMLFetcher {
 		if (successfulCompletions.length >= 1) {
 			return {
 				type: ChatFetchResponseType.Success,
+				reason: successfulCompletions.length === 1 ? successfulCompletions[0].finishReason : undefined,
 				usage: successfulCompletions.length === 1 ? successfulCompletions[0].usage : undefined,
 				value: successfulCompletions.map(c => getTextPart(c.message.content)),
 				requestId,
@@ -701,6 +702,10 @@ export class ChatMLFetcherImpl extends AbstractChatMLFetcher {
 				serverRequestId: undefined,
 			};
 		} else {
+			console.log("============================begin DEBUG:Error on conversation request===============================");
+			console.log(err);
+			console.log("============================end DEBUG:Error on conversation request===============================");
+			// Unknown error
 			return {
 				type: ChatFetchResponseType.Failed,
 				reason: 'Error on conversation request. Check the log for more details.',
