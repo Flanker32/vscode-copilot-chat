@@ -32,7 +32,7 @@ const isRecoveryBuild = !pkg.version.endsWith('.0');
 export default defineConfig({
 	files: __dirname + (isSanity ? '/dist/sanity-test-extension.js' : '/dist/test-extension.js'),
 	// 1.104.0-insider, insiders-unreleased, ee25c1fab76e99da2f8215debfeba3220dacdb00
-	version: isRecoveryBuild ? 'stable' : 'ee25c1fab76e99da2f8215debfeba3220dacdb00',
+	version: isRecoveryBuild ? 'stable' : 'insiders-unreleased',
 	launchArgs: [
 		'--disable-extensions',
 		'--profile-temp'
